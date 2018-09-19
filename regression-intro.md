@@ -351,6 +351,61 @@ summary(ols2a)
 
 The overall model fit is much improved by the exclusion of this outlier, with R<sup>2</sup> increasing to 0.58.
 
+# Robust standard errors
+
+What about robust standard errors? Well, there are *lots* of ways to get these in R. However, my prefered way these days is to use the [`estimatr` package](https://declaredesign.org/r/estimatr/articles/getting-started.html). Let's illustrate with the `ols1` object that we created earlier (which has the crazy Jabba outlier). 
+
+
+```r
+library(estimatr)
+```
+
+```
+## 
+## Attaching package: 'estimatr'
+```
+
+```
+## The following object is masked from 'package:broom':
+## 
+##     tidy
+```
+
+```r
+ols1_robust <- lm_robust(mass ~ height, data = starwars)
+
+tidy(ols1_robust, conf.int = T)
+```
+
+```
+##          term   estimate   std.error  statistic      p.value    conf.low
+## 1 (Intercept) -13.810314 23.45557632 -0.5887859 5.583311e-01 -60.7792950
+## 2      height   0.638571  0.08791977  7.2631109 1.159161e-09   0.4625147
+##    conf.high df outcome
+## 1 33.1586678 57    mass
+## 2  0.8146273 57    mass
+```
+
+You can also be explicit about using Stata robust standard errors.
+
+
+```r
+library(estimatr)
+
+ols1_robust_stata <- lm_robust(mass ~ height, data = starwars, se_type = "stata")
+
+tidy(ols1_robust, conf.int = T)
+```
+
+```
+##          term   estimate   std.error  statistic      p.value    conf.low
+## 1 (Intercept) -13.810314 23.45557632 -0.5887859 5.583311e-01 -60.7792950
+## 2      height   0.638571  0.08791977  7.2631109 1.159161e-09   0.4625147
+##    conf.high df outcome
+## 1 33.1586678 57    mass
+## 2  0.8146273 57    mass
+```
+
 # Fixed effects (and dummy variables)
 
 Manually excluding outliers is often a risky strategy (overfitting, etc.). Maybe we should use some fixed effects instead? Again, a manual inspection of the plotted data suggests this could be useful... although the lack of observations per individual species doesn't make this a very robust model.
@@ -369,7 +424,7 @@ starwars %>%
 ## Warning: Removed 29 rows containing missing values (geom_point).
 ```
 
-![](regression-intro_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+![](regression-intro_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
 
 ## Dummy variables as *factors*
 
@@ -538,7 +593,7 @@ bind_rows(
   theme(axis.title.x = element_blank())
 ```
 
-![](regression-intro_files/figure-html/unnamed-chunk-19-1.png)<!-- -->
+![](regression-intro_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
 
 Normally we expect our standard errors to blow up with clustering, but here that effect appears to be outweighted by the increased precision brought on by additional fixed effects. (As suggested earlier, our level of clustering probably doesn't make much sense either.)
 
@@ -628,7 +683,7 @@ cplot(ols6, x="gender", dx="height")
 ## 2 female 70.66667 122.57168 18.76166
 ```
 
-![](regression-intro_files/figure-html/unnamed-chunk-23-1.png)<!-- -->
+![](regression-intro_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
 
 In this case,it doesn't make much sense to read a lot into the larger standard errors on the female group; that's being driven by a very small sub-sample size.
 

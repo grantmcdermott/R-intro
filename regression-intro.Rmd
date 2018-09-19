@@ -139,6 +139,30 @@ summary(ols2a)
 
 The overall model fit is much improved by the exclusion of this outlier, with R<sup>2</sup> increasing to `r I(round(glance(ols2)$r.squared, 3))`.
 
+# Robust standard errors
+
+What about robust standard errors? Well, there are *lots* of ways to get these in R. However, my prefered way these days is to use the [`estimatr` package](https://declaredesign.org/r/estimatr/articles/getting-started.html). Let's illustrate with the `ols1` object that we created earlier (which has the crazy Jabba outlier). 
+
+```{r}
+library(estimatr)
+
+ols1_robust <- lm_robust(mass ~ height, data = starwars)
+
+tidy(ols1_robust, conf.int = T)
+
+```
+
+You can also be explicit about using Stata robust standard errors.
+
+```{r}
+library(estimatr)
+
+ols1_robust_stata <- lm_robust(mass ~ height, data = starwars, se_type = "stata")
+
+tidy(ols1_robust, conf.int = T)
+
+```
+
 # Fixed effects (and dummy variables)
 
 Manually excluding outliers is often a risky strategy (overfitting, etc.). Maybe we should use some fixed effects instead? Again, a manual inspection of the plotted data suggests this could be useful... although the lack of observations per individual species doesn't make this a very robust model.
