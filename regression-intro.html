@@ -1938,7 +1938,7 @@ University of Oregon<br><h4 class="date"><em>19 September 2018</em></h4>
 <h1>Other topics</h1>
 <div id="interaction-terms" class="section level2">
 <h2>Interaction terms</h2>
-<p>Like dummy variables, R provides a convenient syntax for specifying interaction terms directly in the regression model without having to create them manually beforehand.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> You van just use <code>x1:x2</code> (to include only the interaction term) or <code>x1*x2</code> (to include the parent terms and interaction terms). Generally speaking, you are best advised to always include the parent terms alongside an interaction term. This makes the <code>*</code> option a good default.</p>
+<p>Like dummy variables, R provides a convenient syntax for specifying interaction terms directly in the regression model without having to create them manually beforehand.<a href="#fn5" class="footnote-ref" id="fnref5"><sup>5</sup></a> You van just use <code>x1:x2</code> (to include only the interaction term) or <code>x1*x2</code> (to include the parent terms and interaction terms). Generally speaking, you are best advised to include the parent terms alongside an interaction term. This makes the <code>*</code> option a good default.</p>
 <div class="sourceCode" id="cb45"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb45-1" data-line-number="1">humans &lt;-<span class="st"> </span>starwars <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">filter</span>(species<span class="op">==</span><span class="st">&quot;Human&quot;</span>)</a>
 <a class="sourceLine" id="cb45-2" data-line-number="2"></a>
 <a class="sourceLine" id="cb45-3" data-line-number="3">ols6 &lt;-<span class="st"> </span></a>
@@ -2093,7 +2093,7 @@ University of Oregon<br><h4 class="date"><em>19 September 2018</em></h4>
 <div id="further-reading" class="section level1">
 <h1>Further reading</h1>
 <ul>
-<li>Ed Rubin has outstanding notes for a <a href="http://edrub.in/ARE212/notes.html">PhD-level econometrics course</a> on his website. I believe that he is turning these notes into a book with some coauthors, so stay tuned for that too.</li>
+<li>Ed has outstanding notes for a <a href="http://edrub.in/ARE212/notes.html">PhD-level econometrics course</a> on his website. I believe that he is turning these notes into a book with some coauthors, so stay tuned for that too.</li>
 </ul>
 </div>
 <div class="footnotes">

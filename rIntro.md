@@ -4,7 +4,7 @@ author:
   name: Grant R. McDermott & Ed Rubin
   affiliation: University of Oregon
   # email: grantmcd@uoregon.edu
-date: "19 September 2018"
+date: 19 September 2018
 output:
   html_document:
     theme: flatly
@@ -16,47 +16,49 @@ output:
     keep_md: true
 ---
 
-# Installing `R`
+# Installing R
 
-__`R`__ To use `R`, navigate your browser to [cran.r-project.org](https://cran.r-project.org). Download. You're ready to use `R`.^[CRAN is the central `R` repository.]
+__R:__ To use R, navigate your browser to [cran.r-project.org](https://cran.r-project.org).^[CRAN is the central R repository.] Download. You're ready to use `.
 
-__RStudio__ Most `R` users interact with `R` through an IDE called `RStudio`. Navigate to [https://www.rstudio.com/products/rstudio/](https://www.rstudio.com/products/rstudio/) and download the desktop IDE. Now you're really ready.
+__RStudio:__ Most R users interact with R through an IDE called "RStudio". Navigate to [https://www.rstudio.com/products/rstudio/](https://www.rstudio.com/products/rstudio/) and download the desktop IDE. Now you're really ready.
 
-# Differences between `R` and `Stata`
+# Differences between R and Stata
 
-Relative to `Stata`, `R` introduces a few new dimensions:
+Relative to Stata, R introduces a few new dimensions:
 
-1. `R` is an object-oriented language, in which objects have types.
-2. `R` uses packages (a.k.a. _libraries_).
-3. Working with matrices in `R` is easy (and common).
-4. `R` tries to guess what you meant.
-5. `R` easily (and infinitely) parallelizes.
-6. `R` plays nicely with with `Markdown`.
-7. `R` is free.^[In a monetary sense.]
+1. R is an object-oriented language, in which objects have types.
+2. R uses packages (a.k.a. _libraries_).
+3. Working with matrices in R is easy (and common).
+4. R tries to guess what you meant.
+5. R easily (and infinitely) parallelizes.
+6. R plays nicely with with Markdown.
+7. R is free. (As in beer.)
 
-## `R` is an object-oriented language, in which objects have types
+Let's review these in differences in more depth.
+
+## R is an object-oriented language, in which objects have types
 
 - You hold multiple (many) objects in memory at the same time.
-- No more `preserve`, `snapshot`, `restore` if you have multiple datasets.
+- No more "preserve", "snapshot", "restore" if you have multiple datasets.
 - Defining objects is a thing:
-  - `a <- 3`
-  - `b <- matrix(1:4, nrow = 2)`
-  - `<-` is read aloud as _gets_
+  - `a <- 3` (i.e. the object `a` has been assigned a value of 3)
+  - `b <- matrix(1:4, nrow = 2)` (i.e. the object `b` has been assigned as a 2x2 matrix)
+  - `<-` is read aloud as "gets"."
 - Object types matter: _e.g._, a `matrix` is a bit different from `data.frame` or a `vector`. [More](http://edrub.in/ARE212/section02.html#data_structures_in_r).
 
-## `R` uses packages
+## R uses packages
 
-Just as `LaTeX` uses packages (_i.e._, `\usepackage{foo}`), `R` also draws upon non-default packages (`library(foo)`)
+- Just as LaTex uses packages (_i.e._, `\usepackage{foo}`), R also draws upon non-default packages (`library(foo)`).
+- R automatically loads with a set of default packages called the `base` installation, which includes the most commonly used packages and functions across all use cases. However, to really become effective in R, you will need to install and use non-default packages too.
+  - Seriously, R _intends_ for you to make use of outside packages. Don't constrain yourself.
 
-- `R` loads with a set of default packages called the `base` installation—the most commonly used packages across all of the use cases.
-- __Important:__ `R` intends for you to go get more packages—don't constrain yourself.
-- __Install a package:__
-  - `install.packages("package.name")`
-  - Notice that the package's name is in quotes.^[R uses single (`'word'`) and double quotes (`"word"`) to reference characters (strings).]
-- __Load a package:__
-  - `library(package.name)`
-  - Notice that you don't need quotation marks now.^[Why? Once you've installed the package, `R` treats it as an object rather than a character.]
-- If you want to get really _meta_: the `pacman` (package management) package helps you... manage packages.
+__Install a package:__ `install.packages("package.name")`
+  - Notice that the installed package's name is in quotes.^[R uses single (`'word'`) and double quotes (`"word"`) to reference characters (strings).]
+
+__Load a package:__ `library(package.name)`
+  - Notice that you don't need quotation marks now. Reason: Once you have installed the package, R treats it as an object rather than a character.
+  
+- If you want to get really _meta_: the `pacman` (package management) package ([link](https://cran.r-project.org/web/packages/pacman/vignettes/Introduction_to_pacman.html)) helps you... manage packages.
 
 ## Working with matrices
 
@@ -68,23 +70,30 @@ __Assign (store) a matrix:__ `R A <- matrix(data = c(3, 2, 4, 3), ncol = 3)`
 
 __Invert a matrix:__ `R solve(A)`
 
-## `R` tries to guess what you meant
+## R tries to guess what you meant
 
-R is friendly and likes to try to help.^[This desire to help can sometimes hide programming mistakes.]
+R is friendly and tries to help if you weren't specific enough. Consider the following fictitious regression:
 
-`TRUE + TRUE`
+`lm(wage ~ education + gender)`
 
-The answer? `2`.
+Here, we could use a string variable like `gender` (which takes values like `"female"` and `"male"`) _directly_ in our regression call. R knows what you mean: you want indicator variables for the levels of the variable.^[Variables in R that have different qualitative levels are known as "factors" Behind the scenes, R is converting `gender` from a string to a factor for you, although you can also do this explicitly yourself. More examples [here](https://rawgit.com/grantmcdermott/R-intro/master/regression-intro.html).]
 
-`lm(wage ~ education + gender, data = mincer)`
+Mostly, this is a good thing, but sometimes R's desire to help can hide programming mistakes and idiosyncrasies, _e.g._:
 
-Our regression can use variable like `gender` that takes values `"female"` and `"male"`. `R` knows what you mean: you want indicator variables for the levels of the variable.
+
+```r
+TRUE + TRUE
+```
+
+```
+## [1] 2
+```
 
 ## `R` easily (and infinitely) parallelizes
 
 Parallelization is pretty easy with packages like `pbapply`, `parallel`, and `future`.
 
-Example of a simulation:
+Let's illustrate by way of a simulation. First we create some data (`our_data`) and a function (`our_reg`), which draws a sample of 10,000 observations and runs a regression.
 
 
 ```r
@@ -92,10 +101,12 @@ Example of a simulation:
 set.seed(12345)
 # Set sample size
 n <- 1e6
+
 # Generate 'x' and 'e'
 our_data <- data.frame(x = rnorm(n), e = rnorm(n))
 # Calculate 'y'
 our_data$y <- 3 + 2 * our_data$x + our_data$e
+
 # Function that draws a sample of 10,000 observations and runs a regression
 our_reg <- function(i) {
   # Sample the data
@@ -105,59 +116,74 @@ our_reg <- function(i) {
 }
 ```
 
-Simulation without parallelization:
+Run the simulation without parallelization:
 
 
 ```r
-# Set seed
-set.seed(1234)
-# Start timer
-t1a <- proc.time()
+library(tictoc) ## For convenient timing
+
+set.seed(1234) ## Optional. (Ensures results are exactly the same.)
+
+tic()
 # 1,000-iteration simulation
 sim1 <- lapply(X = 1:1e4, FUN = our_reg)
-# Stop timer
-t1b <- proc.time()
-# How long did it take?
-t1b - t1a
+toc()
 ```
 
 ```
-##    user  system elapsed 
-##  97.847   4.280 102.296
+## 73.576 sec elapsed
 ```
 
-Simulation with parallelization (15 cores):
+Now run the simulation _with_ parallelization (12 cores):
 
 
 ```r
-# Load the 'pbapply' package (must be installed first)
-library(pbapply)
-# Set seed
-set.seed(1234)
-# Start timer
-t2a <- proc.time()
+library(pbapply) ## Adds progress bar and parallel options
+
+set.seed(1234) ## Optional. (Ensures results are exactly the same.)
+
+tic()
 # 1,000-iteration simulation
-sim2 <- pblapply(X = 1:1e4, FUN = our_reg, cl = 15)
-# Stop timer
-t2b <- proc.time()
-# How long did it take?
-t2b - t2a
+sim2 <- pblapply(X = 1:1e4, FUN = our_reg, cl = 12)
+toc()
 ```
 
 ```
-##    user  system elapsed 
-## 124.748   5.567  18.632
+## 18.451 sec elapsed
 ```
 
-Further, many packages in R default (or have options) to work in parallel. _E.g._, the regression package `lfe` uses the available processing power to estimate fixed-effect models.
+Notice how little the syntax changed in order to run the parallel version. To highlight the differences: <code>**pb**lapply(X = 1:1e4, FUN = our_reg**, cl = 12**)</code>. 
+
+Here's another parallel option just to drive home the point. (In R, there are almost always multiple ways to get a particular job done.) 
+
+
+```r
+library(future.apply) ## Another option.
+plan(multiprocess) 
+
+set.seed(1234) ## Optional. (Ensures results are exactly the same.)
+
+tic()
+# 1,000-iteration simulation
+sim3 <- future_lapply(X = 1:1e4, FUN = our_reg)
+toc()
+```
+
+```
+## 17.942 sec elapsed
+```
+
+Further, many packages in R default (or have options) to work in parallel. _E.g._, the regression package `lfe` uses the available processing power to estimate fixed-effect models. 
+
+Again, all of this extra parallelization functionality comes for _free_. In contrast, have you looked up the cost of a Stata/MP license recently? (Nevermind that you effectively pay per core!)
 
 __Note:__ This parallelization often means that you move away from `for` loops and toward parallelized replacements (_e.g._, `lapply` has many parallelized implementations).^[Though there are parallelized `for` loop versions.]^[[More](http://edrub.in/ARE212/section05.html).]
 
-## `R` plays nicely with with `Markdown`
+## R plays nicely with with Markdown
 
-Notes, websites, presentations can all easily include
+Notes, websites, presentations can all easily include: 
 
-code chunks
+code chunks,
 
 ```r
 # Some amazing code
@@ -167,7 +193,7 @@ code chunks
 2 / 2
 ```
 
-evaluated code
+evaluated code,
 
 ```r
 "Ernie" > "Burt"
@@ -177,8 +203,27 @@ evaluated code
 ## [1] TRUE
 ```
 
-and normal/mathematical text $\left(\text{e.g., }\dfrac{x^2}{3}\right)$.
+normal or mathematical text,
 
-## `R` is free
+$$\left(\text{e.g., }\dfrac{x^2}{3}\right)$$
+
+and even interactive content like `leaflet` maps.
+
+
+```r
+library(leaflet)
+
+leaflet() %>%
+  addTiles() %>%  # Add default OpenStreetMap map tiles
+  addMarkers(lng=-123.075, lat=44.045, popup="The University of Oregon")
+```
+
+<!--html_preserve--><div id="htmlwidget-1d9f9b9fdca3023baa83" style="width:672px;height:480px;" class="leaflet html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1d9f9b9fdca3023baa83">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[44.045,-123.075,null,null,null,{"interactive":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},"The University of Oregon",null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[44.045,44.045],"lng":[-123.075,-123.075]}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
+
+
+Yes, Stata 15 has [some Markdown support](https://www.stata.com/new-in-stata/markdown/), but the difference in functionality is [pretty stark](https://rmarkdown.rstudio.com/).
+
+## R is free
 
 So we can use money for other things.
