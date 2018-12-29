@@ -4,7 +4,7 @@ author:
   name: Grant R. McDermott & Ed Rubin
   affiliation: University of Oregon
   # email: grantmcd@uoregon.edu
-date: 19 September 2018
+date: "28 December 2018"
 output: 
   html_document:
     theme: flatly
@@ -20,7 +20,7 @@ output:
 
 # Packages
 
-Ed has already told you about the importance of packages in R. We're going to be using several packages for this section; both for analysis and the built-in datasets that they provide. None of these are strictly necessary. "Base" R provides all the support you need for basic regression analysis. However, these packages will make it easier and more fun. You can install them all as follows:
+In the [previous section](https://raw.githack.com/grantmcdermott/R-intro/master/rIntro.html), we learned about the importance of packages in R. We're going to be using several packages for this section; both for analysis and the built-in datasets that they provide. None of these are strictly necessary. "Base" R provides all the support you need for basic regression analysis. However, these packages will make it easier and more fun. You can install them all as follows:
 
 
 ```r
@@ -56,7 +56,7 @@ starwars
 
 # Regression basics: The `lm()` function
 
-To run an OLS regression in R, we use the `lm()` function that gets automatically loaded with the base `stats` package. The "lm" stands for "**l**inear **m**odels" and running a regression follows a pretty intuitive syntax.[^1] 
+To run an OLS regression in R, we use the `lm()` function that gets automatically loaded with the base `stats` package. The "lm" stands for "**l**inear **m**odels" and running a regression follows a pretty intuitive syntax.^[Indeed, all other regression packages in R that I'm aware of --- including those that allow for much more advanced and flexible models --- closely follow the `lm` syntax.] 
 
 ```r
 lm(y ~ x1 + x2 + x3 + ....)
@@ -81,7 +81,7 @@ ols1
 ##    -13.8103       0.6386
 ```
 
-The resulting object is pretty terse, but that's only because it buries most of its valuable information --- of which there is a lot --- within its internal list structure. You can use the `str` to view this structure.
+The resulting object is pretty terse, but that's only because it buries most of its valuable information --- of which there is a lot --- within its internal list structure. You can use the `str()` function to view this structure.
 
 
 ```r
@@ -351,27 +351,14 @@ summary(ols2a)
 
 The overall model fit is much improved by the exclusion of this outlier, with R<sup>2</sup> increasing to 0.58.
 
-# Robust standard errors
+# Robust and clustered standard errors
 
-What about robust standard errors? Well, there are *lots* of ways to get these in R. However, my prefered way these days is to use the [`estimatr` package](https://declaredesign.org/r/estimatr/articles/getting-started.html). Let's illustrate with the `ols1` object that we created earlier (which has the crazy Jabba outlier). 
+What about robust or clustered standard errors? Well, there are *lots* of ways to get these in R. However, my prefered way these days is to use the [`estimatr` package](https://declaredesign.org/r/estimatr/articles/getting-started.html). Let's illustrate with the `ols1` object that we created earlier (which still includes the crazy Jabba outlier). 
 
 
 ```r
 library(estimatr)
-```
 
-```
-## 
-## Attaching package: 'estimatr'
-```
-
-```
-## The following object is masked from 'package:broom':
-## 
-##     tidy
-```
-
-```r
 ols1_robust <- lm_robust(mass ~ height, data = starwars)
 
 tidy(ols1_robust, conf.int = T)
@@ -386,24 +373,48 @@ tidy(ols1_robust, conf.int = T)
 ## 2  0.8146273 57    mass
 ```
 
-You can also be explicit about using Stata robust standard errors.
+The `estimatr` package also supports clustered standard errors. I'll return to the issue of (multiway) clustering in the section on panel regression [further below](#high-dimensional_fixed_effects_and_(multiway)_clustering), but here's a quick example just to illustrate:
 
 
 ```r
-library(estimatr)
+ols1_robust_clustered <- lm_robust(mass ~ height, data = starwars, clusters = homeworld)
+```
 
-ols1_robust_stata <- lm_robust(mass ~ height, data = starwars, se_type = "stata")
+```
+## Warning in eval(quote({: Some observations have missingness in the cluster
+## variable but not in the outcome or covariates. These observations have been
+## dropped.
+```
 
-tidy(ols1_robust, conf.int = T)
+```r
+tidy(ols1_robust_clustered, conf.int = T)
 ```
 
 ```
 ##          term   estimate   std.error  statistic      p.value    conf.low
-## 1 (Intercept) -13.810314 23.45557632 -0.5887859 5.583311e-01 -60.7792950
-## 2      height   0.638571  0.08791977  7.2631109 1.159161e-09   0.4625147
+## 1 (Intercept) -9.3014938 28.84436408 -0.3224718 0.7559158751 -76.6200628
+## 2      height  0.6134058  0.09911832  6.1886211 0.0002378887   0.3857824
+##    conf.high       df outcome
+## 1 58.0170751 7.486034    mass
+## 2  0.8410291 8.195141    mass
+```
+
+Finally, you can even be explicit about using Stata robust standard errors if you want to replicate code from that language. (See [here](https://declaredesign.org/r/estimatr/articles/stata-wls-hat.html) for more details on why this isn't the default and why Stata's robust standard errors differ from those in R and Python.)
+
+
+```r
+ols1_robust_stata <- lm_robust(mass ~ height, data = starwars, se_type = "stata")
+
+tidy(ols1_robust_stata, conf.int = T)
+```
+
+```
+##          term   estimate   std.error  statistic      p.value    conf.low
+## 1 (Intercept) -13.810314 23.36219608 -0.5911394 5.567641e-01 -60.5923043
+## 2      height   0.638571  0.08616105  7.4113649 6.561046e-10   0.4660365
 ##    conf.high df outcome
-## 1 33.1586678 57    mass
-## 2  0.8146273 57    mass
+## 1 32.9716771 57    mass
+## 2  0.8111055 57    mass
 ```
 
 # Fixed effects (and dummy variables)
@@ -424,11 +435,11 @@ starwars %>%
 ## Warning: Removed 29 rows containing missing values (geom_point).
 ```
 
-![](regression-intro_files/figure-html/unnamed-chunk-15-1.png)<!-- -->
+![](regression-intro_files/figure-html/unnamed-chunk-16-1.png)<!-- -->
 
 ## Dummy variables as *factors*
 
-The simplest (and least efficient) way to include fixed effects in a regression model is, of course, to use dummy variables. Compared to other statistical lanaguages (*cough* Stata *cough*), R has a very convenient framework for evaluating dummy variables in a regression: You simply specify the variable of interest as a factor. R will take care of everything else for you.[^2]
+The simplest (and least efficient) way to include fixed effects in a regression model is, of course, to use dummy variables. Compared to other statistical lanaguages (*cough* Stata *cough*), R has a very convenient framework for evaluating dummy variables in a regression: You simply specify the variable of interest as a factor. R will take care of everything else for you.^[No need to tabulate/append a whole new matrix of binary variables.]
  
 
 ```r
@@ -495,7 +506,7 @@ Ignoring the modelling problems that I mentioned above (that insane R<sup>2</sup
 
 ## Fixed effects with the `lfe` package
 
-One of my favourite packages in the entire R catalogue is `lfe` ("linear fixed effects"). This package has a tonne of options built in to it (instrumental variables, multi-level clustering, etc.) It can also be used to run simple linear regressions *a la* `lm`. The main functionality, however, is for running fixed effects regressions via the `lfe::felm()` function.[^3]
+One of my favourite packages in the entire R catalogue is `lfe` ("linear fixed effects"). This package has a tonne of options built in to it (instrumental variables, multi-level clustering, etc.) It can also be used to run simple linear regressions *a la* `lm`. The main functionality, however, is for running fixed effects regressions via the `lfe::felm()` function.^[There are other packages for running panel regressions in R, in particular the `plm` package. However, I think that `lfe` supersedes these in virtually all aspects.]
 
 
 ```r
@@ -556,7 +567,7 @@ all.equal(
 
 ## High-dimensional fixed effects and (multiway) clustering
 
-One reason that I prefer the `lfe` package to other options --- e.g. the panel data-focused `plm` package --- is because it supports high dimensional fixed effects *and* (multiway) clutering.[^4] In the below example, I'm going to add "homeworld" as an additional fixed effect to the model and also cluster according to this model. I'm not claiming that this is a particularly good or sensible model, but maybe the scales of different homeworlds are similarly biased?? Note that, since we specify "homeworld" in the fixed effects slot below, `felm()` automatically converts it to a factor even though we didn't explicitly tell it to.
+One reason that I prefer the `lfe` package to other options --- e.g. the panel data-focused `plm` package --- is because it supports high dimensional fixed effects *and* (multiway) clustering.^[It is very similar to the excellent [reghdfe](http://scorreia.com/software/reghdfe/) package in Stata.] In the below example, I'm going to add "homeworld" as an additional fixed effect to the model and also cluster according to this model. I'm not claiming that this is a particularly good or sensible model, but just go with it. (Maybe the scales of different homeworlds are similarly biased??) Note that, since we specify "homeworld" in the fixed effects slot below, `felm()` automatically converts it to a factor even though we didn't explicitly tell it to.
 
 
 ```r
@@ -578,7 +589,7 @@ coefs5
 ## 1 height    0.756    0.0622      12.2 0.0000000178    0.634     0.878
 ```
 
-We can easily (visually) compare changes in the coefficients across models thanks to the fact that we saved the output in data frames with `broom::tidy()` above.
+Visually, we can easily compare changes in the coefficients across models thanks to the fact that we saved the output in data frames with `broom::tidy()` above.
 
 
 ```r
@@ -593,7 +604,7 @@ bind_rows(
   theme(axis.title.x = element_blank())
 ```
 
-![](regression-intro_files/figure-html/unnamed-chunk-21-1.png)<!-- -->
+![](regression-intro_files/figure-html/unnamed-chunk-22-1.png)<!-- -->
 
 Normally we expect our standard errors to blow up with clustering, but here that effect appears to be outweighted by the increased precision brought on by additional fixed effects. (As suggested earlier, our level of clustering probably doesn't make much sense either.)
 
@@ -601,7 +612,7 @@ Normally we expect our standard errors to blow up with clustering, but here that
 
 ## Interaction terms
 
-Like dummy variables, R provides a convenient syntax for specifying interaction terms directly in the regression model without having to create them manually beforehand.[^5] You van just use `x1:x2` (to include only the interaction term) or `x1*x2` (to include the parent terms and interaction terms). Generally speaking, you are best advised to include the parent terms alongside an interaction term. This makes the `*` option a good default.
+Like dummy variables, R provides a convenient syntax for specifying interaction terms directly in the regression model without having to create them manually beforehand.^[Although there are very good reasons that you might want to modify your parent variables before doing so (e.g. centering them). As it happens, I'm [on record](https://twitter.com/grant_mcdermott/status/903691491414917122) as stating that interaction effects are most widely misunderstood and misapplied concept in econometrics. However, that's a topic for another day. (Read the paper in the link!)] You van just use `x1:x2` (to include only the interaction term) or `x1*x2` (to include the parent terms and interaction terms). Generally speaking, you are best advised to include the parent terms alongside an interaction term. This makes the `*` option a good default.
 
 
 ```r
@@ -683,7 +694,7 @@ cplot(ols6, x="gender", dx="height")
 ## 2 female 70.66667 122.57168 18.76166
 ```
 
-![](regression-intro_files/figure-html/unnamed-chunk-25-1.png)<!-- -->
+![](regression-intro_files/figure-html/unnamed-chunk-26-1.png)<!-- -->
 
 In this case,it doesn't make much sense to read a lot into the larger standard errors on the female group; that's being driven by a very small sub-sample size.
 
@@ -706,10 +717,10 @@ huxreg(ols4, ols5, ols6)
 
 <!--html_preserve--><table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 50%; margin-left: auto; margin-right: auto; ">
 <col><col><col><col><tr>
-<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid; border-width: 0.8pt 0pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt;"></td>
-<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid; border-width: 0.8pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(1)</td>
-<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid; border-width: 0.8pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(2)</td>
-<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid; border-width: 0.8pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(3)</td>
+<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt;"></td>
+<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(1)</td>
+<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(2)</td>
+<td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(3)</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">height</td>
@@ -755,9 +766,9 @@ huxreg(ols4, ols5, ols6)
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;"></td>
-<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(1.349)</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(1.349)</td>
 </tr>
 <tr>
 <td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">N</td>
@@ -778,10 +789,10 @@ huxreg(ols4, ols5, ols6)
 <td style="vertical-align: top; text-align: right; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">-89.456&nbsp;</td>
 </tr>
 <tr>
-<td style="vertical-align: top; text-align: left; white-space: nowrap; border-style: solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">AIC</td>
-<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
-<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">188.911&nbsp;</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">AIC</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.8pt 0pt; padding: 4pt 4pt 4pt 4pt;">188.911&nbsp;</td>
 </tr>
 <tr>
 <td colspan="4" style="vertical-align: top; text-align: left; white-space: normal; padding: 4pt 4pt 4pt 4pt;"> *** p &lt; 0.001;  ** p &lt; 0.01;  * p &lt; 0.05.</td>
@@ -793,13 +804,3 @@ huxreg(ols4, ols5, ols6)
 # Further reading
 
 - Ed has outstanding notes for a [PhD-level econometrics course](http://edrub.in/ARE212/notes.html) on his website. I believe that he is turning these notes into a book with some coauthors, so stay tuned for that too.
-
-[^1]: Indeed, all other regression packages in R that I'm aware of --- including those that allow for much more advanced and flexible models --- closely follow the `lm` syntax.
-
-[^2]: No need to tabulate/append a whole new matrix of binary variables.
-
-[^3]: There are other packages for running panel regressions in R, in particular the `plm` package. However, I think that `lfe` supersedes these in virtually all aspects.
-
-[^4]: It is very similar to the excellent [reghdfe](http://scorreia.com/software/reghdfe/) package in Stata.
-
-[^5]: Although there are very good reasons that you might want to modify your parent variables before doing so (e.g. centering them). As it happens, I'm [on record](https://twitter.com/grant_mcdermott/status/903691491414917122) as stating that interaction effects are most widely misunderstood and misapplied concept in econometrics. However, that's a topic for another day. (Read the paper in the link!)
