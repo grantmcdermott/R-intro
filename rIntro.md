@@ -4,7 +4,7 @@ author:
   name: Grant R. McDermott & Ed Rubin
   affiliation: University of Oregon
   # email: grantmcd@uoregon.edu
-date: "28 December 2018"
+date: "31 December 2018"
 output:
   html_document:
     theme: flatly
@@ -44,7 +44,7 @@ You know the old joke about an economist being told there is a $100 bill lying o
 
 ## R is an object-oriented language, in which objects have types
 
-You might have heard or read something along the lines of: "In R, everything has a name and everything is an object". This probably sounds very abstract if you're coming from a language like Stata. However, the key practical implications of this so-called object-oriented approach are as follows:
+You might have heard or read something along the lines of: "In R, everything has a name and everything is an object". This probably sounds very abstract if you're coming from a language like Stata. However, the key practical implications of this so-called object-oriented (OO) approach are as follows:
 
 - You hold many objects in memory at the same time.
   - This could include multiple data frames, scalars, lists, functions, etc. (Remember: everything in R is an object.)
@@ -52,9 +52,16 @@ You might have heard or read something along the lines of: "In R, everything has
 - As a corollary of this, defining or _naming_ objects is a thing:
   - `a <- 3` (_i.e._ the object `a` has been assigned as a scalar — or single-length vector — equal to 3)
   - `b <- matrix(1:4, nrow = 2)` (_i.e._ the object `b` has been assigned as a 2x2 matrix)
-  - Side note: the `<-` operator is read aloud as "gets". You can also use a regular old equal sign if you prefer, _e.g._ `a = 3`.
-- This might sound simple (and it is!). But one thing that can trip up new R users, and especially those coming from Stata, is that you have to be specific about which object you are referring to. For example, in Stata there is only ever one dataset in memory, so there can be no ambiguity about which variable you are referring to. However, because you can have multiple data frames in memory in R, you typically have to tell it that you want the variable "wage" from dataframe1 and not from dataframe2. There are various ways to do this and it soon becomes second nature. We'll see some examples in the [next section](https://raw.githack.com/grantmcdermott/R-intro/master/regression-intro.html) on regression models.
-- Similarly, object types matter: _e.g._, a `matrix` is a bit different from `data.frame` or a `vector`. [More](http://edrub.in/ARE212/section02.html#data_structures_in_r).
+  - Side note: the `<-` assignment operator is read aloud as "gets". You can also use a regular old equal sign if you prefer, _e.g._ `a = 3`.
+- Object types matter: _e.g._, a `matrix` is a bit different from `data.frame` or a `vector`. [More](http://edrub.in/ARE212/section02.html#data_structures_in_r).
+
+All of this might sound simple -- and it is! -- but one aspect of the OO approach that can trip up new R users (especially those coming from Stata) is that you have to be specific about which object you are referring to. 
+
+- In Stata, because there is only ever one dataset in memory, there can be no ambiguity about which variable you are referring to (or, more correctly, where Stata should look for it). 
+- However, because you can have multiple data frames in memory in R, you typically have to tell it that you want the variable "wage" from, say, _dataframe1_ and not from _dataframe2_. 
+- There are various ways to do this and it soon becomes second nature. 
+  - _E.g._ You could use the `$` index operator: `dataframe1$wage`.
+  - _E.g._ Some functions let you specify the data frame (or parent object) as part of the function call. We'll see some practical examples of this approach in the [next section](https://raw.githack.com/grantmcdermott/R-intro/master/regression-intro.html) on regression models.
 
 ## R uses packages
 
@@ -102,7 +109,7 @@ TRUE + TRUE
 
 ## `R` easily (and infinitely) parallelizes
 
-Parallelization in R is easily done in R thanks to packages like `parallel`, `pbapply`, and `future`.
+Parallelization in R is easily done thanks to various packages like `parallel`, `pbapply`, `future`, and `foreach`.
 
 Let's illustrate by way of a simulation. First we'll create some data (`our_data`) and a function (`our_reg`), which draws a sample of 10,000 observations and runs a regression.
 
@@ -127,7 +134,7 @@ our_reg <- function(i) {
 }
 ```
 
-Let's run the simulation without parallelization:
+With our data and function created, let's run the simulation without parallelization:
 
 
 ```r
@@ -276,3 +283,7 @@ leaflet() %>%
 <script type="application/json" data-for="htmlwidget-1d9f9b9fdca3023baa83">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[44.045,-123.075,null,null,null,{"interactive":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},"The University of Oregon",null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[44.045,44.045],"lng":[-123.075,-123.075]}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
 
 Yes, Stata 15 has [some Markdown support](https://www.stata.com/new-in-stata/markdown/), but the difference in functionality is [pretty stark](https://rmarkdown.rstudio.com/).
+
+# What's next?
+
+Now that you (hopefully) have a better sense of R, let's head over to the [**regression intro**](https://raw.githack.com/grantmcdermott/R-intro/master/regression-intro.html) section to try some hands-on examples.

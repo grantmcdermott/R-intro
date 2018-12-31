@@ -10,7 +10,7 @@
 
 
 
-<meta name="date" content="2018-12-28" />
+<meta name="date" content="2018-12-31" />
 
 <title>R intro</title>
 
@@ -5478,7 +5478,7 @@ div.tocify {
 <h1 class="title toc-ignore">R intro</h1>
 <h4 class="author"><em>Grant R. McDermott &amp; Ed Rubin</em></h4>
 <address class="author_afil">
-University of Oregon<br><h4 class="date"><em>28 December 2018</em></h4>
+University of Oregon<br><h4 class="date"><em>31 December 2018</em></h4>
 
 </div>
 
@@ -5508,7 +5508,7 @@ University of Oregon<br><h4 class="date"><em>28 December 2018</em></h4>
 </div>
 <div id="r-is-an-object-oriented-language-in-which-objects-have-types" class="section level2">
 <h2>R is an object-oriented language, in which objects have types</h2>
-<p>You might have heard or read something along the lines of: “In R, everything has a name and everything is an object”. This probably sounds very abstract if you’re coming from a language like Stata. However, the key practical implications of this so-called object-oriented approach are as follows:</p>
+<p>You might have heard or read something along the lines of: “In R, everything has a name and everything is an object”. This probably sounds very abstract if you’re coming from a language like Stata. However, the key practical implications of this so-called object-oriented (OO) approach are as follows:</p>
 <ul>
 <li>You hold many objects in memory at the same time.
 <ul>
@@ -5519,10 +5519,19 @@ University of Oregon<br><h4 class="date"><em>28 December 2018</em></h4>
 <ul>
 <li><code>a &lt;- 3</code> (<em>i.e.</em> the object <code>a</code> has been assigned as a scalar — or single-length vector — equal to 3)</li>
 <li><code>b &lt;- matrix(1:4, nrow = 2)</code> (<em>i.e.</em> the object <code>b</code> has been assigned as a 2x2 matrix)</li>
-<li>Side note: the <code>&lt;-</code> operator is read aloud as “gets”. You can also use a regular old equal sign if you prefer, <em>e.g.</em> <code>a = 3</code>.</li>
+<li>Side note: the <code>&lt;-</code> assignment operator is read aloud as “gets”. You can also use a regular old equal sign if you prefer, <em>e.g.</em> <code>a = 3</code>.</li>
 </ul></li>
-<li>This might sound simple (and it is!). But one thing that can trip up new R users, and especially those coming from Stata, is that you have to be specific about which object you are referring to. For example, in Stata there is only ever one dataset in memory, so there can be no ambiguity about which variable you are referring to. However, because you can have multiple data frames in memory in R, you typically have to tell it that you want the variable “wage” from dataframe1 and not from dataframe2. There are various ways to do this and it soon becomes second nature. We’ll see some examples in the <a href="https://raw.githack.com/grantmcdermott/R-intro/master/regression-intro.html">next section</a> on regression models.</li>
-<li>Similarly, object types matter: <em>e.g.</em>, a <code>matrix</code> is a bit different from <code>data.frame</code> or a <code>vector</code>. <a href="http://edrub.in/ARE212/section02.html#data_structures_in_r">More</a>.</li>
+<li>Object types matter: <em>e.g.</em>, a <code>matrix</code> is a bit different from <code>data.frame</code> or a <code>vector</code>. <a href="http://edrub.in/ARE212/section02.html#data_structures_in_r">More</a>.</li>
+</ul>
+<p>All of this might sound simple – and it is! – but one aspect of the OO approach that can trip up new R users (especially those coming from Stata) is that you have to be specific about which object you are referring to.</p>
+<ul>
+<li>In Stata, because there is only ever one dataset in memory, there can be no ambiguity about which variable you are referring to (or, more correctly, where Stata should look for it).</li>
+<li>However, because you can have multiple data frames in memory in R, you typically have to tell it that you want the variable “wage” from, say, <em>dataframe1</em> and not from <em>dataframe2</em>.</li>
+<li>There are various ways to do this and it soon becomes second nature.
+<ul>
+<li><em>E.g.</em> You could use the <code>$</code> index operator: <code>dataframe1$wage</code>.</li>
+<li><em>E.g.</em> Some functions let you specify the data frame (or parent object) as part of the function call. We’ll see some practical examples of this approach in the <a href="https://raw.githack.com/grantmcdermott/R-intro/master/regression-intro.html">next section</a> on regression models.</li>
+</ul></li>
 </ul>
 </div>
 <div id="r-uses-packages" class="section level2">
@@ -5563,7 +5572,7 @@ University of Oregon<br><h4 class="date"><em>28 December 2018</em></h4>
 </div>
 <div id="r-easily-and-infinitely-parallelizes" class="section level2">
 <h2><code>R</code> easily (and infinitely) parallelizes</h2>
-<p>Parallelization in R is easily done in R thanks to packages like <code>parallel</code>, <code>pbapply</code>, and <code>future</code>.</p>
+<p>Parallelization in R is easily done thanks to various packages like <code>parallel</code>, <code>pbapply</code>, <code>future</code>, and <code>foreach</code>.</p>
 <p>Let’s illustrate by way of a simulation. First we’ll create some data (<code>our_data</code>) and a function (<code>our_reg</code>), which draws a sample of 10,000 observations and runs a regression.</p>
 <div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb3-1" title="1"><span class="co"># Set our seed</span></a>
 <a class="sourceLine" id="cb3-2" title="2"><span class="kw">set.seed</span>(<span class="dv">12345</span>)</a>
@@ -5582,7 +5591,7 @@ University of Oregon<br><h4 class="date"><em>28 December 2018</em></h4>
 <a class="sourceLine" id="cb3-15" title="15">  <span class="co"># Run the regression</span></a>
 <a class="sourceLine" id="cb3-16" title="16">  <span class="kw">lm</span>(y <span class="op">~</span><span class="st"> </span>x, <span class="dt">data =</span> sample_data)<span class="op">$</span>coef[<span class="dv">2</span>]</a>
 <a class="sourceLine" id="cb3-17" title="17">}</a></code></pre></div>
-<p>Let’s run the simulation without parallelization:</p>
+<p>With our data and function created, let’s run the simulation without parallelization:</p>
 <div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" title="1"><span class="kw">library</span>(tictoc) <span class="co">## For convenient timing</span></a>
 <a class="sourceLine" id="cb4-2" title="2"></a>
 <a class="sourceLine" id="cb4-3" title="3"><span class="kw">set.seed</span>(<span class="dv">1234</span>) <span class="co">## Optional. (Ensures results are exactly the same.)</span></a>
@@ -5661,6 +5670,10 @@ University of Oregon<br><h4 class="date"><em>28 December 2018</em></h4>
 <script type="application/json" data-for="htmlwidget-1d9f9b9fdca3023baa83">{"x":{"options":{"crs":{"crsClass":"L.CRS.EPSG3857","code":null,"proj4def":null,"projectedBounds":null,"options":{}}},"calls":[{"method":"addTiles","args":["//{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",null,null,{"minZoom":0,"maxZoom":18,"tileSize":256,"subdomains":"abc","errorTileUrl":"","tms":false,"noWrap":false,"zoomOffset":0,"zoomReverse":false,"opacity":1,"zIndex":1,"detectRetina":false,"attribution":"&copy; <a href=\"http://openstreetmap.org\">OpenStreetMap<\/a> contributors, <a href=\"http://creativecommons.org/licenses/by-sa/2.0/\">CC-BY-SA<\/a>"}]},{"method":"addMarkers","args":[44.045,-123.075,null,null,null,{"interactive":true,"draggable":false,"keyboard":true,"title":"","alt":"","zIndexOffset":0,"opacity":1,"riseOnHover":false,"riseOffset":250},"The University of Oregon",null,null,null,null,{"interactive":false,"permanent":false,"direction":"auto","opacity":1,"offset":[0,0],"textsize":"10px","textOnly":false,"className":"","sticky":true},null]}],"limits":{"lat":[44.045,44.045],"lng":[-123.075,-123.075]}},"evals":[],"jsHooks":[]}</script>
 <p>Yes, Stata 15 has <a href="https://www.stata.com/new-in-stata/markdown/">some Markdown support</a>, but the difference in functionality is <a href="https://rmarkdown.rstudio.com/">pretty stark</a>.</p>
 </div>
+</div>
+<div id="whats-next" class="section level1">
+<h1>What’s next?</h1>
+<p>Now that you (hopefully) have a better sense of R, let’s head over to the <a href="https://raw.githack.com/grantmcdermott/R-intro/master/regression-intro.html"><strong>regression intro</strong></a> section to try some hands-on examples.</p>
 </div>
 <div class="footnotes">
 <hr />
