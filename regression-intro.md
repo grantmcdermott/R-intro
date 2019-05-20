@@ -4,7 +4,7 @@ author:
   name: Grant R. McDermott & Ed Rubin
   affiliation: University of Oregon
   # email: grantmcd@uoregon.edu
-date: "28 December 2018"
+date: "20 May 2019"
 output: 
   html_document:
     theme: flatly
@@ -50,7 +50,7 @@ starwars
 ##  8 R5-D4     97    32 <NA>       white, red red             NA   <NA>  
 ##  9 Bigg…    183    84 black      light      brown           24   male  
 ## 10 Obi-…    182    77 auburn, w… fair       blue-gray       57   male  
-## # ... with 77 more rows, and 5 more variables: homeworld <chr>,
+## # … with 77 more rows, and 5 more variables: homeworld <chr>,
 ## #   species <chr>, films <list>, vehicles <list>, starships <list>
 ```
 
@@ -221,9 +221,9 @@ glance(ols1)
 ```
 ## # A tibble: 1 x 11
 ##   r.squared adj.r.squared sigma statistic p.value    df logLik   AIC   BIC
-## *     <dbl>         <dbl> <dbl>     <dbl>   <dbl> <int>  <dbl> <dbl> <dbl>
+##       <dbl>         <dbl> <dbl>     <dbl>   <dbl> <int>  <dbl> <dbl> <dbl>
 ## 1    0.0179      0.000696  169.      1.04   0.312     2  -386.  777.  783.
-## # ... with 2 more variables: deviance <dbl>, df.residual <int>
+## # … with 2 more variables: deviance <dbl>, df.residual <int>
 ```
 
 
@@ -280,7 +280,7 @@ starwars %>%
 ##  8 Chewbacca               112    228
 ##  9 Jek Tono Porkins        110    180
 ## 10 Dexter Jettster         102    198
-## # ... with 77 more rows
+## # … with 77 more rows
 ```
 
 Maybe we should exclude Jabba from our regression? Remember that we can also keep multiple objects in memory in R, so we can just create a new data frame that excludes him using the `filter` command.
@@ -382,8 +382,8 @@ ols1_robust_clustered <- lm_robust(mass ~ height, data = starwars, clusters = ho
 
 ```
 ## Warning in eval(quote({: Some observations have missingness in the cluster
-## variable but not in the outcome or covariates. These observations have been
-## dropped.
+## variable(s) but not in the outcome or covariates. These observations have
+## been dropped.
 ```
 
 ```r
@@ -439,7 +439,7 @@ starwars %>%
 
 ## Dummy variables as *factors*
 
-The simplest (and least efficient) way to include fixed effects in a regression model is, of course, to use dummy variables. Compared to other statistical lanaguages (*cough* Stata *cough*), R has a very convenient framework for evaluating dummy variables in a regression: You simply specify the variable of interest as a factor. R will take care of everything else for you.^[No need to tabulate/append a whole new matrix of binary variables.]
+The simplest (and least efficient) way to include fixed effects in a regression model is, of course, to use dummy variables. Compared to other statistical lanaguages, R has a very convenient framework for evaluating dummy variables in a regression: You simply specify the variable of interest as a factor. R will take care of everything else for you.^[No need to tabulate/append a whole new matrix of binary variables.]
  
 
 ```r
@@ -501,6 +501,8 @@ summary(ols3)
 ## Multiple R-squared:  0.9967,	Adjusted R-squared:  0.9928 
 ## F-statistic: 255.2 on 31 and 26 DF,  p-value: < 2.2e-16
 ```
+
+**Aside:** In fact, we didn't even need to specify that the "species" variable was a factor. R is smart enough to realise that any string variable (i.e. text) *must* be a factor if it is going to be interpretted sensibly in a regression. You can confirm this for yourself by converting "species" back to a character (`starwars$species <- as.character(starwars$species)`) and re-running the above regression.
 
 Ignoring the modelling problems that I mentioned above (that insane R<sup>2</sup> is a clear sign we're overfitting because of small within-group samples), this approach works well enough. However, it isn't very efficient or scaleable. What's the point learning all that stuff about the Frisch-Waugh-Lovell theorem, within-group transformations, etcetera, etcetera if we can't use them in our software routines?
 
@@ -612,7 +614,7 @@ Normally we expect our standard errors to blow up with clustering, but here that
 
 ## Interaction terms
 
-Like dummy variables, R provides a convenient syntax for specifying interaction terms directly in the regression model without having to create them manually beforehand.^[Although there are very good reasons that you might want to modify your parent variables before doing so (e.g. centering them). As it happens, I'm [on record](https://twitter.com/grant_mcdermott/status/903691491414917122) as stating that interaction effects are most widely misunderstood and misapplied concept in econometrics. However, that's a topic for another day. (Read the paper in the link!)] You van just use `x1:x2` (to include only the interaction term) or `x1*x2` (to include the parent terms and interaction terms). Generally speaking, you are best advised to include the parent terms alongside an interaction term. This makes the `*` option a good default.
+Like dummy variables, R provides a convenient syntax for specifying interaction terms directly in the regression model without having to create them manually beforehand.^[Although there are very good reasons that you might want to modify your parent variables before doing so (e.g. centering them). As it happens, I'm [on record](https://twitter.com/grant_mcdermott/status/903691491414917122) as stating that interaction effects are most widely misunderstood and misapplied concept in econometrics. However, that's a topic for another day. (Read the paper in the link!)] You can just use `x1:x2` (to include only the interaction term) or `x1*x2` (to include the parent terms and interaction terms). Generally speaking, you are best advised to include the parent terms alongside an interaction term. This makes the `*` option a good default.
 
 
 ```r
@@ -715,7 +717,7 @@ library(huxtable)
 huxreg(ols4, ols5, ols6)
 ```
 
-<!--html_preserve--><table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 50%; margin-left: auto; margin-right: auto; ">
+<!--html_preserve--><table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 50%; margin-left: auto; margin-right: auto;  ">
 <col><col><col><col><tr>
 <td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt;"></td>
 <td style="vertical-align: top; text-align: center; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.8pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">(1)</td>
@@ -803,4 +805,4 @@ huxreg(ols4, ols5, ols6)
 
 # Further reading
 
-- Ed has outstanding notes for a [PhD-level econometrics course](http://edrub.in/ARE212/notes.html) on his website. I believe that he is turning these notes into a book with some coauthors, so stay tuned for that too.
+- Ed has outstanding lecture notes for both undergrad- and PhD-level econometrics courses on [his website](http://edrub.in/teaching.html). I believe that he is turning these notes into a book with some coauthors, so stay tuned.
